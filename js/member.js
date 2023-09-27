@@ -4,6 +4,7 @@ function construct(memberData) {
         _active: memberData.isActiveMember,
         _birthday: memberData.dateOfBirth,
         _id: memberData.id,
+        _image: memberData.image,
         getAge() {
             // find dato i dag og personens fødselsdag
             const today = new Date();
@@ -21,20 +22,35 @@ function construct(memberData) {
 
             return age;
         },
-        isJunior() {
-            if (this.getAge() < 18) {
-                return true;
-            }
-            return false;
+        get isJunior() {
+            return this.getAge() < 18;
+        },
+        get isSenior() {
+            return !this.isJunior;
         },
         getJuniorSeniorStatus() {
-            if (this.isJunior() === true) {
+            if (this.isJunior) {
                 return "Junior";
-            } else {
+            } else if (this.isSenior) {
                 return "Senior";
             }
         },
     };
+
+    // Gør id skrivebeskyttet
+    Object.defineProperty(member, "_id", {
+        writable: false,
+    });
+
+    // Gør name og image ikke-enumerable
+    Object.defineProperties(member, {
+        _name: {
+            enumerable: false,
+        },
+        _image: {
+            enumerable: false,
+        },
+    });
 
     return member;
 }
