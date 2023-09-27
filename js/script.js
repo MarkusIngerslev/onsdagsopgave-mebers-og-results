@@ -68,21 +68,23 @@ async function buildMembersList() {
 }
 
 // ===== ##### Show table data on site##### ===== //
-// hvis results på hjemmesiden
+// vis resultater på hjemmesiden
 function displayResults(results) {
     const table = document.querySelector("table#results tbody");
     table.innerHTML = "";
 
-    // sorter tider efter hurtigts
+    // sorter tider efter hurtigst
     results.sort((a, b) => a.timeMiliSec - b.timeMiliSec);
 
     //byg forskellige resultater fra array
     for (const result of results) {
+        // console.log(result);
+
         // byg selve tabel
         const html = /*html*/ `
         <tr>
             <td>${formatDate(result)}</td>
-            <td>${result._memberName}</td>
+            <td>${result.member._name}</td>
             <td>${disciplineType(result)}</td>
             <td>${competitionType(result)}</td>
             <td>${result._time}</td>
