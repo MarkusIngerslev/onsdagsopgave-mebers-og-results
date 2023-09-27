@@ -17,12 +17,12 @@ async function initApp() {
     initTabs();
 
     // byg arrays
-    await buildResultsList();
     await buildMembersList();
+    await buildResultsList();
 
     // vis data på siden
-    displayResults(fixedResults);
     displayMembers(fixedMembers);
+    displayResults(fixedResults);
 }
 
 // ===== ##### Fetch data from json ##### ===== //
@@ -82,7 +82,7 @@ function displayResults(results) {
         const html = /*html*/ `
         <tr>
             <td>${formatDate(result)}</td>
-            <td>${result._memberId}</td>
+            <td>${result._memberName}</td>
             <td>${disciplineType(result)}</td>
             <td>${competitionType(result)}</td>
             <td>${result._time}</td>
@@ -123,7 +123,6 @@ function competitionType(data) {
 
 // Funktion til at ændre disciplinen af discipline
 function disciplineType(data) {
-    let disciplineType;
     if (data._discipline === "butterfly") {
         return "Butterfly";
     } else if (data._discipline === "backstroke") {
@@ -162,6 +161,7 @@ function formatDate(data) {
     return formattedDate;
 }
 
+// Funktion til at ændre om en person er aktiv eller ej
 function activeType(data) {
     if (data._active === true) {
         return "Aktiv";
@@ -169,3 +169,18 @@ function activeType(data) {
         return "Ikke aktive";
     }
 }
+
+// ===== ##### Match member with results ##### ===== //
+// find et members resultater
+function findMembersResults(memberId) {
+    // console.log(memberId);
+    const memberResult = fixedMembers.find((member) => member._id === memberId);
+    // console.log(memberResult);
+    if (memberResult) {
+        return memberResult._name;
+    } else {
+        return "Medlem ikke fundet";
+    }
+}
+
+export { findMembersResults };

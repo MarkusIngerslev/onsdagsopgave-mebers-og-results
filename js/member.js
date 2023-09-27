@@ -3,6 +3,7 @@ function construct(memberData) {
         _name: memberData.firstName + " " + memberData.lastName,
         _active: memberData.isActiveMember,
         _birthday: memberData.dateOfBirth,
+        _id: memberData.id,
         getAge() {
             // find dato i dag og personens fødselsdag
             const today = new Date();
@@ -24,11 +25,7 @@ function construct(memberData) {
             if (this.getAge() < 18) {
                 return true;
             }
-        },
-        isSenior() {
-            if (this.getAge() >= 18) {
-                return true;
-            }
+            return false;
         },
         getJuniorSeniorStatus() {
             if (this.isJunior() === true) {

@@ -1,11 +1,16 @@
+import { findMembersResults } from "./script.js";
+
 function construct(resultData) {
+    const memberName = findMembersResults(resultData.memberId);
+
     const result = {
         _date: resultData.date,
         _memberId: resultData.memberId,
         _discipline: resultData.discipline,
         _resultType: resultData.resultType,
         _time: resultData.time,
-        getTime: function () {
+        _memberName: memberName,
+        getTime() {
             const timeParts = resultData.time.split(":");
             const minutes = parseInt(timeParts[0]);
             const secondsAndHundredths = timeParts[1].split(".");
