@@ -100,7 +100,7 @@ function displayMembers(members) {
         const html = /*html*/ `
     <tr>
       <td>${member._name}</td>
-      <td>${member._active}</td>
+      <td>${activeType(member)}</td>
       <td>${formatDate(member)}</td>
       <td>${member.age}</td>
       <td>${member.ageGroup}</td>
@@ -160,4 +160,12 @@ function formatDate(data) {
     const formattedDate = `${parts[0].value}. ${parts[2].value} ${parts[4].value}`;
 
     return formattedDate;
+}
+
+function activeType(data) {
+    if (data._active === true) {
+        return "Aktiv";
+    } else if (data._active === false) {
+        return "Ikke aktive";
+    }
 }
