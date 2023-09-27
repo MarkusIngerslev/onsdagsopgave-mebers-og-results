@@ -5,11 +5,15 @@ function construct(resultData) {
 
     const result = {
         _date: resultData.date,
-        _memberId: resultData.memberId,
         _discipline: resultData.discipline,
         _resultType: resultData.resultType,
         _time: resultData.time,
-        _memberName: memberName,
+        get member() {
+            return {
+                _id: resultData.memberId,
+                _name: memberName,
+            };
+        },
         getTime() {
             const timeParts = resultData.time.split(":");
             const minutes = parseInt(timeParts[0]);
@@ -23,6 +27,21 @@ function construct(resultData) {
             return totalTimeInMilliseconds;
         },
     };
+
+    // Gør id skrivebeskyttet
+    Object.defineProperty(result, "_id", {
+        writable: false,
+    });
+
+    // Gør metoderne og member ikke-enumerable
+    Object.defineProperties(result, {
+        getTime: {
+            enumerable: false,
+        },
+        member: {
+            enumerable: false,
+        },
+    });
 
     return result;
 }
