@@ -3,6 +3,7 @@ import * as member from "./member.js";
 import * as result from "./result.js";
 import * as ListRenderer from "./listRenderer.js";
 import { MemberRenderer } from "./memberRenderer.js";
+import { ResultRenderer } from "./resultRender.js";
 
 window.addEventListener("load", initApp);
 
@@ -17,58 +18,15 @@ async function initApp() {
     await buildResultList();
 
     // display lists
-    // displayMemberList(members);
     const memberList = ListRenderer.construct(members, "table#members tbody", MemberRenderer);
     memberList.render();
 
-    displayResultList(results);
+    const resultList = ListRenderer.construct(results, "table#results tbody", ResultRenderer);
+    resultList.render();
 }
 
 export function getMember(memberId) {
     return members.find((member) => member.id === memberId);
-}
-
-function displayResultList(results) {
-    const table = document.querySelector("table#results tbody");
-    table.innerHTML = "";
-
-    const disciplines = {
-        breaststroke: "bryst",
-        butterfly: "butterfly",
-        backstroke: "ryg",
-        freestyle: "freestyle",
-    };
-
-    for (const result of results) {
-        let name = "";
-        if (result.member !== undefined) {
-            name = result.member.name;
-        } else {
-            name = "-ukendt medlem-";
-        }
-
-        let træningEllerStævne = "";
-        if (result.isTraining) {
-            træningEllerStævne = "træning";
-        } else {
-            træningEllerStævne = "stævne";
-        }
-
-        const html = /*html*/ `
-    <tr>
-      <td>${result.date.toLocaleString("da", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-      })}</td>
-      <td>${name}</td>
-      <td>${disciplines[result.discipline]}</td>
-      <td>${træningEllerStævne}</td>
-      <td>${result.getTimeString()}</td>
-    </tr>`;
-        table.insertAdjacentHTML("beforeend", html);
-    }
 }
 
 async function buildMemberList() {

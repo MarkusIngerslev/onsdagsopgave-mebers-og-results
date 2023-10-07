@@ -4,8 +4,8 @@ export function construct(list, container, itemRenderer) {
         itemRenderer: itemRenderer,
         render() {
             this.container.innerHTML = "";
-            for (const member of list) {
-                const html = this.itemRenderer.render(member);
+            for (const item of list) {
+                const html = this.itemRenderer.render(item);
                 this.container.insertAdjacentHTML("beforeend", html);
             }
         },
