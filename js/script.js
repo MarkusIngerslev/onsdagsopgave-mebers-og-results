@@ -1,6 +1,7 @@
 import { initTabs } from "./tabs.js";
 import * as member from "./member.js";
 import * as result from "./result.js";
+import * as ListRenderer from "./listRenderer.js";
 
 window.addEventListener("load", initApp);
 
@@ -15,46 +16,15 @@ async function initApp() {
     await buildResultList();
 
     // display lists
-    displayMemberList(members);
+    // displayMemberList(members);
+    const memberList = ListRenderer.construct(members, null, null);
+    memberList.render();
+
     displayResultList(results);
 }
 
 export function getMember(memberId) {
     return members.find((member) => member.id === memberId);
-}
-
-function displayMemberList(members) {
-    const table = document.querySelector("table#members tbody");
-    table.innerHTML = "";
-    for (const member of members) {
-        let aktivStatus = "";
-        if (member.active) {
-            aktivStatus = "aktiv";
-        } else {
-            aktivStatus = "ikke aktiv";
-        }
-
-        let juniorEllerSenior = "";
-        if (member.isJunior) {
-            juniorEllerSenior = "Junior";
-        } else {
-            juniorEllerSenior = "Senior";
-        }
-
-        const html = /*html*/ `
-      <tr>
-        <td>${member.name}</td>
-        <td>${aktivStatus}</td>
-        <td>${member.birthday.toLocaleString("da", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        })}</td>
-        <td>${member.age}</td>
-        <td>${juniorEllerSenior}</td>
-      </tr>`;
-        table.insertAdjacentHTML("beforeend", html);
-    }
 }
 
 function displayResultList(results) {
