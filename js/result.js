@@ -1,49 +1,52 @@
-import { findMembersResults } from "./script.js";
+import { getMember } from "./script.js";
 
-function construct(resultData) {
-    const memberName = findMembersResults(resultData.memberId);
+export function construct(originalData) {
+    const resultObject = {
+        id: originalData.id,
+        member: getMember(originalData.memberId),
+        date: new Date(originalData.date),
+        discipline: originalData.discipline,
+        type: originalData.resultType,
 
-    const result = {
-        _date: resultData.date,
-        _discipline: resultData.discipline,
-        _resultType: resultData.resultType,
-        _time: resultData.time,
-        get member() {
-            return {
-                _id: resultData.memberId,
-                _name: memberName,
-            };
+        getTimeString() {
+            const min = Math.floor(this.time / 1000 / 60);
+            const sec = Math.floor(this.time / 1000) - min * 60;
+            const millis = this.time - (min * 60 + sec) * 1000;
+            return `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}.${(millis / 10)
+                .toString()
+                .padStart(2, "0")}`;
         },
-        getTime() {
-            const timeParts = resultData.time.split(":");
-            const minutes = parseInt(timeParts[0]);
-            const secondsAndHundredths = timeParts[1].split(".");
-            const seconds = parseInt(secondsAndHundredths[0]);
-            const hundredths = parseInt(secondsAndHundredths[1]);
+        setTimeString(timestring) {
+            const parts = timestring.split(/[:.]/);
+            const min = Number(parts[0]);
+            const sec = Number(parts[1]);
+            const millis = Number(parts[2]);
 
-            // Beregn totaltiden i millisekunder
-            const totalTimeInMilliseconds = minutes * 60 * 1000 + seconds * 1000 + hundredths * 10;
-
-            return totalTimeInMilliseconds;
+            this.time = (min * 60 + sec) * 1000 + millis * 10;
+        },
+        get isTraining() {
+            return this.type === "training";
+        },
+        get isCompetition() {
+            return this.type === "competition";
         },
     };
 
-    // Gør id skrivebeskyttet
-    Object.defineProperty(result, "_id", {
+    Object.defineProperty(resultObject, "id", {
+        configurable: false,
         writable: false,
     });
 
-    // Gør metoderne og member ikke-enumerable
-    Object.defineProperties(result, {
-        getTime: {
-            enumerable: false,
-        },
-        member: {
-            enumerable: false,
-        },
+    Object.defineProperty(resultObject, "getTimeString", {
+        enumerable: false,
     });
 
-    return result;
-}
+    Object.defineProperty(resultObject, "setTimeString", {
+        enumerable: false,
+    });
 
-export { construct };
+    // When done creating the object, set the TimeString from the JSON
+    resultObject.setTimeString(originalData.time);
+
+    return resultObject;
+}

@@ -1,58 +1,43 @@
-function construct(memberData) {
-    const member = {
-        _name: memberData.firstName + " " + memberData.lastName,
-        _active: memberData.isActiveMember,
-        _birthday: memberData.dateOfBirth,
-        _id: memberData.id,
-        _image: memberData.image,
-        getAge() {
-            // find dato i dag og personens fødselsdag
-            const today = new Date();
-            const birthDate = new Date(memberData.dateOfBirth);
-
-            // find alder ved at trække fødsels år fra nuværende år
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDifference = today.getMonth() - birthDate.getMonth();
-
-            // tjekker om den aktuelle fødselsmåned allerede har været.
-            // hvis fødselsdagen ikke har været indnu, så vil der blive trukket 1 fra personens alder.
-            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-
-            return age;
+export function construct(memberdata) {
+    const MemberObject = {
+        id: memberdata.id,
+        firstName: memberdata.firstName,
+        lastName: memberdata.lastName,
+        get name() {
+            return this.firstName + " " + this.lastName;
+        },
+        active: memberdata.isActiveMember,
+        competitive: memberdata.isCompetitive,
+        birthday: new Date(memberdata.dateOfBirth),
+        email: memberdata.email,
+        gender: memberdata.gender,
+        image: memberdata.image,
+        hasPayed: memberdata.hasPayed,
+        get age() {
+            const diff = Date.now() - this.birthday.getTime();
+            const years = Math.floor(diff / 1000 / 60 / 60 / 24 / 365);
+            return years;
         },
         get isJunior() {
-            return this.getAge() < 18;
+            return this.age < 18;
         },
         get isSenior() {
-            return !this.isJunior;
-        },
-        getJuniorSeniorStatus() {
-            if (this.isJunior) {
-                return "Junior";
-            } else if (this.isSenior) {
-                return "Senior";
-            }
+            return this.age >= 18;
         },
     };
 
-    // Gør id skrivebeskyttet
-    Object.defineProperty(member, "_id", {
+    Object.defineProperty(MemberObject, "id", {
+        configurable: false,
         writable: false,
     });
 
-    // Gør name og image ikke-enumerable
-    Object.defineProperties(member, {
-        _name: {
-            enumerable: false,
-        },
-        _image: {
-            enumerable: false,
-        },
+    Object.defineProperty(MemberObject, "name", {
+        enumerable: false,
     });
 
-    return member;
-}
+    Object.defineProperty(MemberObject, "image", {
+        enumerable: false,
+    });
 
-export { construct };
+    return MemberObject;
+}

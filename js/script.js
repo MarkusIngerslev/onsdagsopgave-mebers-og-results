@@ -1,188 +1,119 @@
-// ===== ##### Imports ##### ===== //
 import { initTabs } from "./tabs.js";
-import * as result from "./result.js";
 import * as member from "./member.js";
+import * as result from "./result.js";
 
-// ===== ##### Global Varibles ##### ===== //
-const resultEndpoint = "../data/results.json";
-const memberEndpoint = "../data/members.json";
-
-const fixedResults = [];
-const fixedMembers = [];
-
-// ===== ##### Start Program ##### ===== //d
 window.addEventListener("load", initApp);
+
+let members = [];
+let results = [];
 
 async function initApp() {
     initTabs();
 
-    // byg arrays
-    await buildMembersList();
-    await buildResultsList();
+    // load data-objects
+    await buildMemberList();
+    await buildResultList();
 
-    // vis data på siden
-    displayMembers(fixedMembers);
-    displayResults(fixedResults);
+    // display lists
+    displayMemberList(members);
+    displayResultList(results);
 }
 
-// ===== ##### Fetch data from json ##### ===== //
-// fetch results
-async function fetchResults() {
-    const res = await fetch(`${resultEndpoint}`);
-    const data = await res.json();
-    return data;
+export function getMember(memberId) {
+    return members.find((member) => member.id === memberId);
 }
 
-// fetch members
-async function fetchMembers() {
-    const res = await fetch(`${memberEndpoint}`);
-    const data = await res.json();
-    return data;
-}
+function displayMemberList(members) {
+    const table = document.querySelector("table#members tbody");
+    table.innerHTML = "";
+    for (const member of members) {
+        let aktivStatus = "";
+        if (member.active) {
+            aktivStatus = "aktiv";
+        } else {
+            aktivStatus = "ikke aktiv";
+        }
 
-// ===== ##### Build local array ##### ===== //
-// lav array over results
-async function buildResultsList() {
-    const originalResults = await fetchResults();
-    // console.log(originalResults);
+        let juniorEllerSenior = "";
+        if (member.isJunior) {
+            juniorEllerSenior = "Junior";
+        } else {
+            juniorEllerSenior = "Senior";
+        }
 
-    for (const jsonObj of originalResults) {
-        const realObject = result.construct(jsonObj);
-        realObject.timeMiliSec = realObject.getTime();
-        // console.log(realObject);
-        fixedResults.push(realObject);
+        const html = /*html*/ `
+      <tr>
+        <td>${member.name}</td>
+        <td>${aktivStatus}</td>
+        <td>${member.birthday.toLocaleString("da", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        })}</td>
+        <td>${member.age}</td>
+        <td>${juniorEllerSenior}</td>
+      </tr>`;
+        table.insertAdjacentHTML("beforeend", html);
     }
 }
 
-async function buildMembersList() {
-    const originalMembers = await fetchMembers();
-    // console.log(originalMembers);
-
-    for (const jsonObj of originalMembers) {
-        const realObject = member.construct(jsonObj);
-        realObject.age = realObject.getAge();
-        realObject.ageGroup = realObject.getJuniorSeniorStatus();
-        // console.log(realObject);
-        fixedMembers.push(realObject);
-    }
-}
-
-// ===== ##### Show table data on site##### ===== //
-// vis resultater på hjemmesiden
-function displayResults(results) {
+function displayResultList(results) {
     const table = document.querySelector("table#results tbody");
     table.innerHTML = "";
 
-    // sorter tider efter hurtigst
-    results.sort((a, b) => a.timeMiliSec - b.timeMiliSec);
+    const disciplines = {
+        breaststroke: "bryst",
+        butterfly: "butterfly",
+        backstroke: "ryg",
+        freestyle: "freestyle",
+    };
 
-    //byg forskellige resultater fra array
     for (const result of results) {
-        // console.log(result);
+        let name = "";
+        if (result.member !== undefined) {
+            name = result.member.name;
+        } else {
+            name = "-ukendt medlem-";
+        }
 
-        // byg selve tabel
-        const html = /*html*/ `
-        <tr>
-            <td>${formatDate(result)}</td>
-            <td>${result.member._name}</td>
-            <td>${disciplineType(result)}</td>
-            <td>${competitionType(result)}</td>
-            <td>${result._time}</td>
-        </tr>`;
-        table.insertAdjacentHTML("beforeend", html);
-    }
-}
+        let træningEllerStævne = "";
+        if (result.isTraining) {
+            træningEllerStævne = "træning";
+        } else {
+            træningEllerStævne = "stævne";
+        }
 
-// vis members på hjemmesiden
-function displayMembers(members) {
-    const table = document.querySelector("table#members tbody");
-
-    table.innerHTML = "";
-    for (const member of members) {
         const html = /*html*/ `
     <tr>
-      <td>${member._name}</td>
-      <td>${activeType(member)}</td>
-      <td>${formatDate(member)}</td>
-      <td>${member.age}</td>
-      <td>${member.ageGroup}</td>
+      <td>${result.date.toLocaleString("da", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+      })}</td>
+      <td>${name}</td>
+      <td>${disciplines[result.discipline]}</td>
+      <td>${træningEllerStævne}</td>
+      <td>${result.getTimeString()}</td>
     </tr>`;
-
         table.insertAdjacentHTML("beforeend", html);
     }
 }
 
-// ===== ##### Help funktions to show data ##### ===== //
-// Funktion til at ændre typen af resultType
-function competitionType(data) {
-    let resultType;
-    if (data._resultType === "competition") {
-        return (resultType = "Stævne");
-    } else if (data._resultType === "training") {
-        return (resultType = "Træning");
-    }
+async function buildMemberList() {
+    const originalData = await fetchMembers();
+    members = originalData.map(member.construct);
 }
 
-// Funktion til at ændre disciplinen af discipline
-function disciplineType(data) {
-    if (data._discipline === "butterfly") {
-        return "Butterfly";
-    } else if (data._discipline === "backstroke") {
-        return "Ryg";
-    } else if (data._discipline === "breaststroke") {
-        return "Bryst";
-    } else if (data._discipline === "crawl") {
-        return "Crawl";
-    } else if (data._discipline === "freestyle") {
-        return "Freestyle";
-    }
+async function buildResultList() {
+    const originalData = await fetchResults();
+    results = originalData.map(result.construct);
 }
 
-// Funktion til at ændre dato til rigtigt format
-function formatDate(data) {
-    // sætter det ønskede format for hvordan dato skal være
-    const dateFormat = new Intl.DateTimeFormat("da-DK", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    });
-
-    // Brug formatToParts for at få en liste over dele af datoen
-    let dateObj;
-    if (data._date) {
-        dateObj = new Date(data._date);
-    } else if (data._birthday) {
-        dateObj = new Date(data._birthday);
-    }
-
-    const parts = dateFormat.formatToParts(dateObj);
-
-    // sæt de forskellige dele af datoen til det rigtige format
-    const formattedDate = `${parts[0].value}. ${parts[2].value} ${parts[4].value}`;
-
-    return formattedDate;
+async function fetchMembers() {
+    return await fetch("../data/members.json").then((resp) => resp.json());
 }
 
-// Funktion til at ændre om en person er aktiv eller ej
-function activeType(data) {
-    if (data._active === true) {
-        return "Aktiv";
-    } else if (data._active === false) {
-        return "Ikke aktive";
-    }
+async function fetchResults() {
+    return await fetch("../data/results.json").then((resp) => resp.json());
 }
-
-// ===== ##### Match member with results ##### ===== //
-// find et members resultater
-function findMembersResults(memberId) {
-    // console.log(memberId);
-    const memberResult = fixedMembers.find((member) => member._id === memberId);
-    // console.log(memberResult);
-    if (memberResult) {
-        return memberResult._name;
-    } else {
-        return "Medlem ikke fundet";
-    }
-}
-
-export { findMembersResults };
