@@ -17,7 +17,7 @@ async function initApp() {
 
     // display lists
     // displayMemberList(members);
-    const memberList = ListRenderer.construct(members, null, null);
+    const memberList = ListRenderer.construct(members, "table#members tbody", null);
     memberList.render();
 
     displayResultList(results);
